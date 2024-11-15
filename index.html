@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Engine Prototype</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Blinking Text Style */
+        #blink {
+            font-size: 14px;
+            font-weight: bold;
+            font-family: sans-serif;
+            text-align: left;
+            margin-bottom: 12px;
+        }
+
+        /* Popup styles */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            max-width: 80%;
+            width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .popup-content {
+            text-align: left;
+            color: black; /* Ensuring text is pitch black */
+        }
+
+        .popup-buttons {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        .popup-buttons button {
+            margin-left: 10px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Button Styles */
+        #nextSlide {
+            background-color: green; /* Green for Next Slide */
+            color: white;
+        }
+
+        #closePopup {
+            background-color: gray; /* Gray for Close on first slide */
+            color: white;
+        }
+
+        #prevSlide {
+            background-color: gray; /* Gray for Previous Slide */
+            color: white;
+        }
+
+        #closePopupSlide2 {
+            background-color: red; /* Red for Close on second slide */
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="container">
+        <h1>Task Engine</h1>
+
+        <!-- Multicolored Blinking Text -->
+        <p id="blink">Click on User Documentation for more info!</p>
+
+        <!-- Help and Documentation Button -->
+        <button id="helpButton">User Documentation</button>
+
+        <!-- Help Popup -->
+        <div id="helpPopup" class="popup">
+            <div class="popup-content">
+                <div id="slide1">
+                    <h2>Welcome to Task Engine!</h2>
+                    <p>Unleash your productivity with Task Engine, your ultimate task management companion!</p>
+                    <p>This powerful web app is designed to help you:</p>
+                    <ul>
+                        <li><strong>Create Tasks:</strong> Effortlessly add tasks with just a few clicks.</li>
+                        <li><strong>Set Deadlines:</strong> Keep your projects on track by setting clear deadlines.</li>
+                        <li><strong>Assign Team Members:</strong> Collaborate seamlessly by assigning tasks to your team.</li>
+                        <li><strong>Prioritize Wisely:</strong> Use priority levels to focus on what matters most.</li>
+                        <li><strong>Search & Filter:</strong> Find tasks quickly with our intuitive search and filter options.</li>
+                        <li><strong>Edit & Delete:</strong> Stay flexible by editing or removing tasks as needed.</li>
+                    </ul>
+                    <p>Whether you're managing a small project or coordinating a large team, Task Engine is here to streamline your workflow and boost your efficiency. Let's get started and conquer those tasks!</p>
+                </div>
+                <div id="slide2" style="display: none;">
+                    <h2>Need Assistance?</h2>
+                    <p><strong>Feeling stuck?</strong> Don't worry! Reach out to your HR Manager:</p>
+                    <p><strong>Name:</strong> Jane Smith</p>
+                    <p><strong>Email:</strong> jane.smith@company.com</p>
+                    <p><strong>Phone:</strong> +1 (987) 654-3210</p>
+                    <p><strong>Available Hours:</strong> Monday to Friday, 9 AM - 5 PM</p>
+
+                    <hr>
+
+                    <p>If you're facing issues with the app, our IT Help Desk is here to help:</p>
+                    <p><strong>Email:</strong> it.support@company.com</p>
+                    <p><strong>Phone:</strong> +1 (555) 123-4567</p>
+                    <p><strong>Available Hours:</strong> 24/7 Support</p>
+
+                    <p>We're committed to ensuring you have the best experience possible. Don't hesitate to reach out!</p>
+                </div>
+            </div>
+            <div class="popup-buttons">
+                <button id="prevSlide" style="display: none;">Previous Slide</button>
+                <button id="closePopup">Close</button>
+                <button id="nextSlide" style="display: inline;">Next Slide</button>
+            </div>
+        </div>
+
+        <!-- Task Form -->
+        <div class="task-form">
+            <form id="taskForm">
+                <div class="form-left">
+                    <label for="title">Name of Task:</label>
+                    <input type="text" id="title" required>
+
+                    <label for="description">Description of Task:</label>
+                    <textarea id="description" required></textarea>
+                    <p id="wordCount">0/30 words</p>
+
+                    <label for="deadline">Deadline:</label>
+                    <input type="date" id="deadline" required>
+                </div>
+
+                <div class="form-right">
+                    <label for="team">Team:</label>
+                    <select id="team" required>
+                        <option value="Development Team">Development Team</option>
+                        <option value="Design Team">Design Team</option>
+                        <option value="Quality Assurance Team">Quality Assurance Team</option>
+                        <option value="Business Analyst Team">Business Analyst Team</option>
+                        <option value="Marketing Team">Marketing Team</option>
+                        <option value="Support Team">Support Team</option>
+                        <option value="Documentation Team">Documentation Team</option>
+                    </select>
+
+                    <label for="priority">Priority:</label>
+                    <select id="priority" required>
+                        <option value="Low">Low: Can be addressed later</option>
+                        <option value="Medium">Medium: Needs to be addressed soon</option>
+                        <option value="High">High: Needs immediate attention</option>
+                    </select>
+
+                    <label for="assignee">Assignee:</label>
+                    <select id="assignee" required>
+                        <option value="Member1">Member1</option>
+                        <option value="Member2">Member2</option>
+                        <option value="Member3">Member3</option>
+                        <option value="Member4">Member4</option>
+                    </select>
+
+                    <button type="submit">Add Task</button>
+                    <button type="button" id="resetButton">Reset</button> 
+                </div>
+            </form>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="search-filter">
+            <div class="search-container">
+                <input type="text" id="search" placeholder="Search tasks">
+                <i class="fas fa-search"></i>
+            </div>
+            <select id="filter">
+                <option value="">All</option>
+                <option value="Low">Low Priority</option>
+                <option value="Medium">Medium Priority</option>
+                <option value="High">High Priority</option>
+            </select>
+            <p id="noResults" style="display: none;">No task matches your search.</p>
+        </div>
+
+        <!-- Task Table -->
+        <table id="taskTable">
+            <thead>
+                <tr>
+                    <th>Name of task</th>
+                    <th>Team</th>
+                    <th>Description</th>
+                    <th>Priority</th>
+                    <th>Deadline</th>
+                    <th>Assignee</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="javascript.js"></script>
+    <script>
+        // Blinking Text JavaScript
+        let blink = document.getElementById('blink');
+        const colors = ['red', 'blue', 'green', 'purple', 'orange', 'pink'];
+        let colorIndex = 0;
+
+        setInterval(function () {
+            blink.style.opacity = (blink.style.opacity == 0 ? 1 : 0);
+            if (blink.style.opacity == 1) {
+                blink.style.color = colors[colorIndex];
+                colorIndex = (colorIndex + 1) % colors.length;
+            }
+        }, 1000);
+
+        // Popup JavaScript
+        const helpButton = document.getElementById('helpButton');
+        const helpPopup = document.getElementById('helpPopup');
+        const closePopup = document.getElementById('closePopup');
+        const nextSlide = document.getElementById('nextSlide');
+        const prevSlide = document.getElementById('prevSlide');
+        const slide1 = document.getElementById('slide1');
+        const slide2 = document.getElementById('slide2');
+
+        helpButton.addEventListener('click', () => {
+            helpPopup.style.display = 'block';
+        });
+
+        closePopup.addEventListener('click', () => {
+            helpPopup.style.display = 'none';
+        });
+
+        nextSlide.addEventListener('click', () => {
+            slide1.style.display = 'none';
+            slide2.style.display = 'block';
+            nextSlide.style.display = 'none'; // Hide Next Slide button
+            prevSlide.style.display = 'inline'; // Show Previous Slide button
+        });
+
+        prevSlide.addEventListener('click', () => {
+            slide1.style.display = 'block';
+            slide2.style.display = 'none';
+            nextSlide.style.display = 'inline'; // Show Next Slide button
+            prevSlide.style.display = 'none'; // Hide Previous Slide button
+        });
+
+        // Form JavaScript and other functionalities here
+    </script>
+</body>
+</html>
