@@ -186,6 +186,19 @@ document.addEventListener('DOMContentLoaded', function() {
         helpPopup.style.display = 'none';
     });
 
+    // Bookmark functionality
+    row.querySelector('.bookmark-btn').addEventListener('click', function() {
+        this.classList.toggle('bookmarked');
+        if (this.classList.contains('bookmarked')) {
+            showMessage('Task bookmarked!');
+        } else {
+            showMessage('Bookmark removed.');
+        }
+    });
+
+    // Other event listeners remain the same
+}
+
     resetButton.addEventListener('click', function() {
         taskForm.reset();
         document.querySelector('button[type="submit"]').textContent = 'Add Task';
