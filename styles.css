@@ -287,6 +287,25 @@ button {
     background-color: #f44336; /* Red background for reset */
     color: white;
 }
+/* Styles for Bookmark Button */
+.bookmark-btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: #888; /* Default color for the icon */
+    font-size: 18px; /* Adjust icon size */
+    transition: color 0.3s ease;
+    margin-right: 5px; /* Space between buttons */
+}
+
+.bookmark-btn:hover {
+    color: #333; /* Darker color on hover */
+}
+
+.bookmarked {
+    color: gold; /* Highlight color for bookmarked tasks */
+}
+
 
 #resetButton:hover {
     background-color: #e53935; /* Darker red on hover */
