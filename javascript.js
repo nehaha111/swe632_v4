@@ -34,7 +34,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 </select>
             </td>
             <td>
-                <button class="edit-btn">Update</button>
+    <button class="bookmark-btn" title="Bookmark Task">
+        <i class="fas fa-bookmark"></i>
+    </button>
+ <button class="edit-btn">Update</button>
                 <button class="delete-btn">Delete</button>
             </td>
         `;
