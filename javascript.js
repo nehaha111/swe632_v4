@@ -12,24 +12,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const closePopupButton = document.getElementById('closePopup');
     const helpPopup = document.getElementById('helpPopup');
     const helpMessage = document.getElementById('helpMessage');
-    const notification = document.getElementById('notification');
-    const formHeading = document.getElementById('formHeading');
 
     let tasks = [];
-    let editIndex = null; // Track the index of the task being edited
+    let editIndex = null;
 
-    // Function for notification
-    function showMessage(message) {
-        notification.textContent = message; // Set message text
-        notification.style.opacity = '1'; // Show notification
-
-        // Automatically hide notification after 3 seconds
-        setTimeout(() => {
-            notification.style.opacity = '0'; // Fade out notification
-        }, 3000);
-    }
-
-    // Function to add a row to the task table
+    // Function to add a new row in the task table
     function addTaskRow(task, index) {
         const row = taskTable.insertRow();
         row.innerHTML = `
@@ -48,47 +35,71 @@ document.addEventListener('DOMContentLoaded', function() {
                 </select>
             </td>
             <td>
-                <button class="edit-btn"><i class="fas fa-edit"></i> Update</button>
-                <button class="delete-btn"><i class="fas fa-trash-alt"></i> Delete</button>
+                <button class="edit-btn">Update</button>
+                <button class="delete-btn">Delete</button>
             </td>
         `;
 
-        // Add delete functionality
         row.querySelector('.delete-btn').addEventListener('click', () => {
             if (confirm('Are you sure you want to delete this task?')) {
-                tasks.splice(index, 1); // Remove the task from the list
-                displayTasks(); // Re-display the tasks
-                showMessage('Task deleted successfully!'); // Confirmation message
+                tasks.splice(index, 1); // Remove task from array
+                displayTasks(); // Re-display tasks after deletion
+                showMessage('Task deleted successfully!');
             }
         });
 
-        // Add edit functionality
         row.querySelector('.edit-btn').addEventListener('click', () => {
-            editTask(index); // Directly call editTask without confirmation
+            editTask(index); // Populate the form with selected task data
         });
 
-        // Apply priority color to the priority cell
+        // Change the color of the priority text based on priority level
         const priorityCell = row.cells[3];
-        if (task.priority === 'High') {
-            priorityCell.style.color = 'red';
-        } else if (task.priority === 'Medium') {
-            priorityCell.style.color = 'orange';
-        } else if (task.priority === 'Low') {
-            priorityCell.style.color = 'green';
-        }
+        priorityCell.style.color = task.priority === 'High' ? 'red' : task.priority === 'Medium' ? 'orange' : 'green';
     }
 
     // Function to display all tasks
     function displayTasks() {
-        taskTable.innerHTML = ''; // Clear the table
+        taskTable.innerHTML = ''; // Clear the table before displaying
         tasks.forEach((task, index) => {
             addTaskRow(task, index); // Add each task to the table
         });
     }
 
-    // Add or update a task
+    // Function to show a notification message
+    function showMessage(message) {
+        const popup = document.createElement('div');
+        popup.className = 'popup';
+        popup.innerHTML = `
+            <p>${message}</p>
+            <button class="close-btn">Close</button>
+        `;
+        document.body.appendChild(popup);
+
+        // Style the popup
+        popup.style.position = 'fixed';
+        popup.style.bottom = '20px';
+        popup.style.left = '50%';
+        popup.style.transform = 'translateX(-50%)';
+        popup.style.backgroundColor = '#333';
+        popup.style.color = '#fff';
+        popup.style.padding = '10px';
+        popup.style.borderRadius = '5px';
+        popup.style.zIndex = '1000';
+
+        popup.querySelector('.close-btn').addEventListener('click', () => {
+            document.body.removeChild(popup); // Close the popup on button click
+        });
+
+        setTimeout(() => {
+            if (document.body.contains(popup)) {
+                document.body.removeChild(popup); // Auto close the popup after 3 seconds
+            }
+        }, 3000);
+    }
+
+    // Event listener for form submission to add or update a task
     taskForm.addEventListener('submit', function(event) {
-        event.preventDefault();
+        event.preventDefault(); // Prevent form from refreshing the page
 
         const newTask = {
             title: document.getElementById('title').value,
@@ -100,79 +111,52 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         if (editIndex === null) {
-            // Prompt for confirmation when adding a new task
+            // Adding a new task
             if (confirm('Are you sure you want to add this task?')) {
                 tasks.push(newTask);
-                showMessage('Task added successfully!'); // Confirmation message
+                showMessage('Task added successfully!');
                 taskForm.reset(); // Clear the form
             }
         } else {
-            // Prompt for confirmation before updating the existing task
+            // Updating an existing task
             if (confirm('Are you sure you want to update this task?')) {
-                tasks[editIndex] = newTask; // Update the existing task
-                showMessage('Task updated successfully!'); // Confirmation message
-                editIndex = null; // Reset editIndex after updating
+                tasks[editIndex] = newTask; // Update the task at the editIndex
+                showMessage('Task updated successfully!');
+                editIndex = null; // Reset editIndex after update
                 taskForm.reset(); // Clear the form
             }
         }
 
-        displayTasks(); // Refresh the task table
-        resetForm();
+        document.querySelector('button[type="submit"]').textContent = 'Add Task'; // Reset button text
+        displayTasks(); // Re-render the task list after form submission
     });
 
-    // Function to fill the form with task data for editing
+    // Function to populate the form with data when editing a task
     function editTask(index) {
         const task = tasks[index];
-        
-        // Populate the form with the task's details
         document.getElementById('title').value = task.title;
         document.getElementById('team').value = task.team;
         document.getElementById('description').value = task.description;
         document.getElementById('priority').value = task.priority;
         document.getElementById('deadline').value = task.deadline;
         document.getElementById('assignee').value = task.assignee;
-    
-        // Highlight the task row being edited
-        const rows = taskTable.querySelectorAll('tr');
-        rows.forEach(row => row.classList.remove('editing')); // Remove highlight from all rows
-        rows[index + 1].classList.add('editing'); // Highlight the current row (index + 1 for header row)
-    
-        // Update the form heading and button text
-        formHeading.textContent = "Edit Task";
-        document.querySelector('button[type="submit"]').textContent = "Update Task";
-    
-        // Set the current edit index and mode
-        editIndex = index;
+
+        editIndex = index; // Set the editIndex to the task index
+        document.querySelector('button[type="submit"]').textContent = 'Update Task'; // Change button text to "Update"
     }
 
-    function resetForm() {
-        // Reset the form inputs
-        taskForm.reset();
-
-        // Reset the form heading and button text
-        formHeading.textContent = "Add New Task";
-        document.querySelector('button[type="submit"]').textContent = "Add Task";
-
-        // Remove all highlights from rows
-        const rows = taskTable.querySelectorAll('tr');
-        rows.forEach(row => row.classList.remove('editing'));
-
-        // Reset the edit index and mode
-        editIndex = null;
-    }
-
-    // Word count logic
+    // Word count logic for task description
     descriptionInput.addEventListener('input', function() {
         const wordCount = descriptionInput.value.split(/\s+/).filter(word => word.length > 0).length;
         wordCountDisplay.textContent = `${wordCount}/30 words`;
-        wordCountDisplay.style.color = wordCount > 30 ? 'red' : '#888';
+        wordCountDisplay.style.color = wordCount > 30 ? 'red' : '#888'; // Change color if word count exceeds 30
     });
 
-    // Set date input to only show future dates
+    // Set minimum date for deadline input to today's date
     const today = new Date().toISOString().split('T')[0];
     deadlineInput.setAttribute('min', today);
 
-    // Function to filter tasks by search or priority
+    // Function to filter tasks by search and priority
     function filterTasks() {
         const searchQuery = searchInput.value.toLowerCase();
         const filterValue = filterSelect.value;
@@ -191,21 +175,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (filteredTasks.length > 0) {
             filteredTasks.forEach((task, index) => {
-                addTaskRow(task, tasks.indexOf(task));
+                addTaskRow(task, tasks.indexOf(task)); // Add filtered tasks to the table
             });
-            noResultsMessage.style.display = 'none';
+            noResultsMessage.style.display = 'none'; // Hide no results message
         } else {
-            noResultsMessage.style.display = 'block';
+            noResultsMessage.style.display = 'block'; // Show no results message
         }
     }
 
+    // Add event listeners for search and filter
     searchInput.addEventListener('input', filterTasks);
     filterSelect.addEventListener('change', filterTasks);
 
-    // Help and Documentation Popup Logic
+    // Help button for showing help popup
     helpButton.addEventListener('click', function() {
         helpPopup.style.display = 'block';
-        helpMessage.textContent = "Hey!"; // Show "Hello" message
+        helpMessage.textContent = "This is a task management application where you can create, edit, and delete tasks, set deadlines, assign them to team members, and filter tasks by priority.";
     });
 
     // Close help popup
@@ -213,13 +198,13 @@ document.addEventListener('DOMContentLoaded', function() {
         helpPopup.style.display = 'none';
     });
 
-    // Reset button functionality
+    // Reset button to clear form and reset task list
     resetButton.addEventListener('click', function() {
-        taskForm.reset(); // Reset the form fields to their initial values
-        document.querySelector('button[type="submit"]').textContent = 'Add Task'; // Reset button text to 'Add Task'
-        editIndex = null; // Clear the edit index
+        taskForm.reset(); // Reset the form fields
+        document.querySelector('button[type="submit"]').textContent = 'Add Task'; // Reset button text
+        editIndex = null; // Reset edit index
         noResultsMessage.style.display = 'none'; // Hide no results message
     });
 
-    displayTasks(); // Display tasks when DOM is loaded
+    displayTasks(); // Display tasks on page load
 });
