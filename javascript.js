@@ -209,3 +209,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     displayTasks(); // Display tasks on page load
 });
+
