@@ -35,8 +35,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 </select>
             </td>
             <td>
-                <button class="edit-btn">Update</button>
-                <button class="delete-btn">Delete</button>
+                <button class="edit-btn"><i class="fas fa-pencil-alt"></i> Update</button> <!-- Added icon here -->
+                <button class="delete-btn"><i class="fas fa-trash"></i> Delete</button> <!-- Added icon here -->
             </td>
         `;
 
