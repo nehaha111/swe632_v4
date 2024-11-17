@@ -116,6 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 tasks.push(newTask);
                 showMessage('Task added successfully!');
                 taskForm.reset(); // Clear the form
+                document.querySelector('button[type="submit"]').innerHTML = '<i class="fas fa-plus"></i> Add Task'; // Reset button text
             }
         } else {
             // Updating an existing task
@@ -124,10 +125,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 showMessage('Task updated successfully!');
                 editIndex = null; // Reset editIndex after update
                 taskForm.reset(); // Clear the form
+                document.querySelector('button[type="submit"]').innerHTML = '<i class="fas fa-plus"></i> Add Task'; // Reset button text
             }
         }
 
-        document.querySelector('button[type="submit"]').textContent = 'Add Task'; // Reset button text
         displayTasks(); // Re-render the task list after form submission
     });
 
@@ -142,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('assignee').value = task.assignee;
 
         editIndex = index; // Set the editIndex to the task index
-        document.querySelector('button[type="submit"]').textContent = 'Update Task'; // Change button text to "Update"
+        document.querySelector('button[type="submit"]').innerHTML = '<i class="fas fa-plus"></i> Update Task'; // Change button text to "Update"
     }
 
     // Word count logic for task description
@@ -201,7 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Reset button to clear form and reset task list
     resetButton.addEventListener('click', function() {
         taskForm.reset(); // Reset the form fields
-        document.querySelector('button[type="submit"]').textContent = 'Add Task'; // Reset button text
+        document.querySelector('button[type="submit"]').innerHTML = '<i class="fas fa-plus"></i> Add Task'; // Reset button text
         editIndex = null; // Reset edit index
         noResultsMessage.style.display = 'none'; // Hide no results message
     });
