@@ -6,17 +6,7 @@
     <title>Task Engine Prototype</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
     <style>
-        /* Blinking Text Style */
-        #blink {
-            font-size: 14px;
-            font-weight: bold;
-            font-family: sans-serif;
-            text-align: left;
-            margin-bottom: 12px;
-        }
-
         /* Popup styles */
         .popup {
             display: none;
@@ -34,232 +24,539 @@
             max-height: 80vh;
             overflow-y: auto;
         }
-
-        .popup-content {
-            text-align: left;
-            color: black; /* Ensuring text is pitch black */
+        /* Sidebar and content styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 200px;
+            background-color: #333;
+            color: white;
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-
-        .popup-buttons {
-            text-align: right;
-            margin-top: 20px;
-        }
-
-        .popup-buttons button {
-            margin-left: 10px;
-            padding: 8px 12px;
-            border: none;
-            border-radius: 4px;
+        .sidebar a {
+            text-decoration: none;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            text-align: center;
+            border-bottom: 1px solid #444;
             cursor: pointer;
+            font-size: 18px;
         }
-
-        /* Button Styles */
-        #nextSlide {
-            background-color: green; /* Green for Next Slide */
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+        .container {
+            margin-left: 220px;
+            padding: 20px;
+        }
+        .task-form, .task-table, .user-documentation {
+            display: none;
+        }
+        #addTaskTab.active, #viewTaskTab.active, #userDocumentationTab.active {
+            display: block;
+        }
+        /* Task Form & Table Styles */
+        #taskTable td button {
+            margin-right: 10px;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        /* Button Colors */
+        .updateBtn {
+            background-color: orange;
             color: white;
         }
+        #updatePopup h3 {
+    color: #333; /* Color for the heading text */
+    font-size: 18px; /* Font size for better visibility */
+    margin-bottom: 8px; /* Space between heading and field */
+    margin-top: 15px; /* Add margin before each section */
+}
 
-        #closePopup {
-            background-color: gray; /* Gray for Close on first slide */
+#updatePopup input,
+#updatePopup textarea,
+#updatePopup select {
+    width: 100%; /* Ensure full width for inputs */
+    padding: 10px;
+    margin-bottom: 20px; /* Space after the input fields */
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+#updatePopup textarea {
+    height: 100px; /* Set a reasonable height for the description field */
+}
+
+        .deleteBtn {
+            background-color: red;
             color: white;
         }
-
-        #prevSlide {
-            background-color: gray; /* Gray for Previous Slide */
-            color: white;
+        .resetBtn {
+            background-color: #ddd;
+            color: black;
         }
-
-        #closePopupSlide2 {
-            background-color: red; /* Red for Close on second slide */
+        .updateBtn:hover, .deleteBtn:hover, .resetBtn:hover {
+            opacity: 0.8;
+        }
+        /* Success Message Styles */
+        .success-message {
+            background-color: green;
             color: white;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            display: none;
+        }
+        /* Blinking Text */
+        .blinking-text {
+            color: #1d5880;
+            font-weight: bold;
+            animation: blinker 1s linear infinite;
+        }
+        @keyframes blinker {
+            50% { opacity: 0; }
+        }
+        /* Center the success message */
+        .success-message.show {
+            display: block;
+        }
+        /* Search Styles */
+        #searchFilterBar {
+            margin-bottom: 20px;
+        }
+        #searchFilterBar input {
+            padding: 5px;
+            font-size: 16px;
+        }
+        /* Confirmation Popup Styles */
+#updateConfirmPopup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    text-align: center;
+}
+
+#updateConfirmPopup button {
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+}
+
+#updateConfirmPopup button:hover {
+    opacity: 0.8;
+}
+
+        /* No results message */
+        #noResultsMessage {
+            color: red;
+            font-size: 16px;
+            display: none;
+        }
+        #userDocumentationNav {
+            color: #3498db;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
+    <!-- Left Sidebar Navigation -->
+    <div class="sidebar">
+        <a href="#" id="addTaskNav">Add Task</a>
+        <a href="#" id="viewTaskNav">View Task</a>
+        <a href="#" id="userDocumentationNav">User Documentation</a>
+    </div>
+
     <!-- Main Container -->
     <div class="container">
         <h1>Task Engine</h1>
 
-        <!-- Notification Popup -->
-        <div id="notification" class="notification"></div>
+        <!-- Success Message -->
+        <div id="successMessage" class="success-message">Operation Successful!</div>
 
-        <!-- Multicolored Blinking Text -->
-        <p id="blink">Click on User Documentation for more info!</p>
-
-        <!-- Help and Documentation Button -->
-        <button id="helpButton"><i class="fas fa-info-circle"></i> User Documentation</button>
-
-        <!-- Help Popup -->
-        <div id="helpPopup" class="popup">
-            <div class="popup-content">
-                <div id="slide1">
-                    <h2>Welcome to Task Engine!</h2>
-                    <p>Unleash your productivity with Task Engine, your ultimate task management companion!</p>
-                    <p>This powerful web app is designed to help you:</p>
-                    <ul>
-                        <li><strong>Create Tasks:</strong> Effortlessly add tasks with just a few clicks.</li>
-                        <li><strong>Set Deadlines:</strong> Keep your projects on track by setting clear deadlines.</li>
-                        <li><strong>Assign Team Members:</strong> Collaborate seamlessly by assigning tasks to your team.</li>
-                        <li><strong>Prioritize Wisely:</strong> Use priority levels to focus on what matters most.</li>
-                        <li><strong>Search & Filter:</strong> Find tasks quickly with our intuitive search and filter options.</li>
-                        <li><strong>Edit & Delete:</strong> Stay flexible by editing or removing tasks as needed.</li>
-                    </ul>
-                    <p>Whether you're managing a small project or coordinating a large team, Task Engine is here to streamline your workflow and boost your efficiency. Let's get started and conquer those tasks!</p>
-                </div>
-                <div id="slide2" style="display: none;">
-                    <h2>Need Assistance?</h2>
-                    <p><strong>Feeling stuck?</strong> Don't worry! Reach out to your HR Manager:</p>
-                    <p><strong>Name:</strong> Jane Smith</p>
-                    <p><strong>Email:</strong> jane.smith@company.com</p>
-                    <p><strong>Phone:</strong> +1 (987) 654-3210</p>
-                    <p><strong>Available Hours:</strong> Monday to Friday, 9 AM - 5 PM</p>
-
-                    <hr>
-
-                    <p>If you're facing issues with the app, our IT Help Desk is here to help:</p>
-                    <p><strong>Email:</strong> it.support@company.com</p>
-                    <p><strong>Phone:</strong> +1 (555) 123-4567</p>
-                    <p><strong>Available Hours:</strong> 24/7 Support</p>
-
-                    <p>We're committed to ensuring you have the best experience possible. Don't hesitate to reach out!</p>
-                </div>
-            </div>
-            <div class="popup-buttons">
-                <button id="prevSlide" style="display: none;">Previous Slide</button>
-                <button id="closePopup">Close</button>
-                <button id="nextSlide" style="display: inline;">Next Slide</button>
-            </div>
-        </div>
-
-        <!-- Task Form -->
-        <div class="task-form">
+        <!-- Add Task Tab -->
+        <div id="addTaskTab" class="task-form">
+            <p class="blinking-text">Click User Documentation for help!!!</p>
             <form id="taskForm">
                 <div class="form-left">
-                    <label for="title">Name of Task:</label>
+                    <h3>Name of Task:</h3>
                     <input type="text" id="title" required>
+                    <p id="taskNameError" style="color: red; font-size: medium; margin: 0; display: none;">No numbers or special characters allowed! Please try again.</p>
 
-                    <label for="description">Description of Task:</label>
+                    <h3>Description of Task:</h3>
                     <textarea id="description" required></textarea>
-                    <p id="wordCount">0/30 words</p>
+                    <p id="wordCount" style="margin: 0;"></p>
 
-                    <label for="deadline">Deadline:</label>
+                    <h3>Deadline:</h3>
                     <input type="date" id="deadline" required>
                 </div>
-
                 <div class="form-right">
-                    <label for="team">Team:</label>
+                    <h3>Team:</h3>
                     <select id="team" required>
                         <option value="Development Team">Development Team</option>
                         <option value="Design Team">Design Team</option>
-                        <option value="Quality Assurance Team">Quality Assurance Team</option>
-                        <option value="Business Analyst Team">Business Analyst Team</option>
-                        <option value="Marketing Team">Marketing Team</option>
-                        <option value="Support Team">Support Team</option>
-                        <option value="Documentation Team">Documentation Team</option>
                     </select>
 
-                    <label for="priority">Priority:</label>
+                    <h3>Priority:</h3>
                     <select id="priority" required>
                         <option value="Low">Low: Can be addressed later</option>
                         <option value="Medium">Medium: Needs to be addressed soon</option>
                         <option value="High">High: Needs immediate attention</option>
                     </select>
 
-                    <label for="assignee">Assignee:</label>
+                    <h3>Assignee:</h3>
                     <select id="assignee" required>
                         <option value="Member1">Member1</option>
                         <option value="Member2">Member2</option>
-                        <option value="Member3">Member3</option>
-                        <option value="Member4">Member4</option>
                     </select>
 
                     <button type="submit"><i class="fas fa-plus"></i> Add Task</button>
-                    <button type="button" id="resetButton"><i class="fas fa-undo-alt"></i> Reset</button>
+                    <button type="button" id="resetBtn" class="resetBtn"><i class="fas fa-undo"></i> Reset</button>
                 </div>
             </form>
         </div>
 
-        <!-- Search and Filter -->
-        <div class="search-filter">
-            <div class="search-container">
-                <input type="text" id="search" placeholder="Search tasks">
-                <i class="fas fa-search"></i>
+        <!-- View Task Tab -->
+        <div id="viewTaskTab" class="task-table">
+            <!-- Search Bar -->
+            <div id="searchFilterBar">
+                <input type="text" id="searchInput" placeholder="Search tasks...">
             </div>
-            <select id="filter">
-                <option value="">All</option>
-                <option value="Low">Low Priority</option>
-                <option value="Medium">Medium Priority</option>
-                <option value="High">High Priority</option>
-            </select>
-            <p id="noResults" style="display: none;">No task matches your search.</p>
+
+            <!-- No results message -->
+            <div id="noResultsMessage">No matches found. Please try another search.</div>
+
+            <table id="taskTable">
+                <thead>
+                    <tr>
+                        <th>Name of Task</th>
+                        <th>Team</th>
+                        <th>Description</th>
+                        <th>Priority</th>
+                        <th>Deadline</th>
+                        <th>Assignee</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Dynamically generated task rows will go here -->
+                </tbody>
+            </table>
         </div>
 
-        <!-- Task Table -->
-        <table id="taskTable">
-            <thead>
-                <tr>
-                    <th>Name of task</th>
-                    <th>Team</th>
-                    <th>Description</th>
-                    <th>Priority</th>
-                    <th>Deadline</th>
-                    <th>Assignee</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+        <!-- User Documentation Tab -->
+        <div id="userDocumentationTab" class="user-documentation">
+            <h2>Welcome to Task Engine!</h2>
+            <p>Unleash your productivity with Task Engine, your ultimate task management companion!</p>
+        </div>
+
+        <!-- Popup for Updating Task -->
+        <div id="updatePopup" class="popup">
+            <h2>Update Task</h2>
+            <form id="updateForm">
+                <h3>Name of Task:</h3>
+                <input type="text" id="updateTitle" required>
+                <p id="updateTaskNameError" style="color: red; font-size: medium; margin: 0; display: none;">No numbers or special characters allowed! Please try again.</p>
+
+                <h3 for="updateDescription">Description of Task:</h3>
+<textarea id="updateDescription" required></textarea>
+<p id="updateWordCount" style="margin: 0; font-size: 14px; color: #555;">Word count: 0</p>
+                <h3>Deadline:</h3>
+                <input type="date" id="updateDeadline" required>
+
+                <h3>Team:</h3>
+                <select id="updateTeam" required>
+                    <option value="Development Team">Development Team</option>
+                    <option value="Design Team">Design Team</option>
+                </select>
+
+                <h3>Priority:</h3>
+                <select id="updatePriority" required>
+                    <option value="Low">Low: Can be addressed later</option>
+                    <option value="Medium">Medium: Needs to be addressed soon</option>
+                    <option value="High">High: Needs immediate attention</option>
+                </select>
+
+                <h3>Assignee:</h3>
+                <select id="updateAssignee" required>
+                    <option value="Member1">Member1</option>
+                    <option value="Member2">Member2</option>
+                </select>
+
+                <button type="submit">Save Changes</button>
+                <button type="button" id="closePopupBtn">Close</button>
+            </form>
+        </div>
     </div>
 
-    <!-- JavaScript -->
-    <script src="javascript.js"></script>
     <script>
-        // Blinking Text JavaScript
-        let blink = document.getElementById('blink');
-        const colors = ['red', 'blue', 'green', 'purple', 'orange', 'pink'];
-        let colorIndex = 0;
-
-        setInterval(function () {
-            blink.style.opacity = (blink.style.opacity == 0 ? 1 : 0);
-            if (blink.style.opacity == 1) {
-                blink.style.color = colors[colorIndex];
-                colorIndex = (colorIndex + 1) % colors.length;
+        const tasks = [];
+        let editingIndex = null;
+    
+        // Function to show/hide tabs
+        function showTab(tabId) {
+            document.querySelectorAll('.task-form, .task-table, .user-documentation').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+        }
+    
+        // Show Tab functionality
+        document.getElementById('addTaskNav').addEventListener('click', () => showTab('addTaskTab'));
+        document.getElementById('viewTaskNav').addEventListener('click', () => showTab('viewTaskTab'));
+        document.getElementById('userDocumentationNav').addEventListener('click', () => showTab('userDocumentationTab'));
+    
+        // Add Task Name input validation
+        function validateTaskName(inputId, errorId) {
+            const taskNameInput = document.getElementById(inputId);
+            const taskNameError = document.getElementById(errorId);
+            const originalValue = taskNameInput.value;
+            const cleanedValue = originalValue.replace(/[^a-zA-Z\s]/g, '');
+    
+            if (originalValue !== cleanedValue) {
+                taskNameInput.value = cleanedValue;
             }
-        }, 1000);
-
-        // Popup JavaScript
-        const helpButton = document.getElementById('helpButton');
-        const helpPopup = document.getElementById('helpPopup');
-        const closePopup = document.getElementById('closePopup');
-        const nextSlide = document.getElementById('nextSlide');
-        const prevSlide = document.getElementById('prevSlide');
-        const slide1 = document.getElementById('slide1');
-        const slide2 = document.getElementById('slide2');
-
-        helpButton.addEventListener('click', () => {
-            helpPopup.style.display = 'block';
+    
+            if (/[^a-zA-Z\s]/.test(originalValue)) {
+                taskNameError.style.display = 'block';
+            } else {
+                taskNameError.style.display = 'none';
+            }
+        }
+    
+        document.getElementById('title').addEventListener('input', function() {
+            validateTaskName('title', 'taskNameError');
         });
-
-        closePopup.addEventListener('click', () => {
-            helpPopup.style.display = 'none';
+    
+        // Word count functionality
+        function updateWordCount(textareaId, counterId) {
+            const description = document.getElementById(textareaId).value;
+            const wordCount = document.getElementById(counterId);
+            const words = description.trim().split(/\s+/).filter(Boolean);
+            wordCount.textContent = `${words.length}/30`;
+        }
+    
+        document.getElementById('description').addEventListener('input', function() {
+            updateWordCount('description', 'wordCount');
         });
-
-        nextSlide.addEventListener('click', () => {
-            slide1.style.display = 'none';
-            slide2.style.display = 'block';
-            nextSlide.style.display = 'none'; // Hide Next Slide button
-            prevSlide.style.display = 'inline'; // Show Previous Slide button
+    
+        // Add task form submission logic
+        document.getElementById('taskForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const userConfirmed = confirm('Are you sure you want to add this new task?');
+            if (userConfirmed) {
+                const task = {
+                    title: document.getElementById('title').value,
+                    description: document.getElementById('description').value,
+                    deadline: document.getElementById('deadline').value,
+                    team: document.getElementById('team').value,
+                    priority: document.getElementById('priority').value,
+                    assignee: document.getElementById('assignee').value,
+                    status: 'Pending'
+                };
+                tasks.push(task);
+                showSuccessMessage();
+                clearForm();
+                renderTaskTable();
+            }
         });
-
-        prevSlide.addEventListener('click', () => {
-            slide1.style.display = 'block';
-            slide2.style.display = 'none';
-            nextSlide.style.display = 'inline'; // Show Next Slide button
-            prevSlide.style.display = 'none'; // Hide Previous Slide button
+    
+        // Reset form functionality
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            clearForm();
         });
-
-        // Form JavaScript and other functionalities here
+    
+        function clearForm() {
+            document.getElementById('taskForm').reset();
+            document.getElementById('taskNameError').style.display = 'none';
+            document.getElementById('wordCount').textContent = '';
+        }
+    
+        // Render task table with drag-and-drop
+        function renderTaskTable() {
+            const taskTable = document.getElementById('taskTable').getElementsByTagName('tbody')[0];
+            taskTable.innerHTML = ''; // Clear the table before re-rendering
+            tasks.forEach((task, index) => {
+                const row = taskTable.insertRow();
+                row.id = 'taskRow' + index; // Set unique id for each task row
+    
+                // Insert task details into table
+                row.insertCell(0).textContent = task.title;
+                row.insertCell(1).textContent = task.team;
+                row.insertCell(2).textContent = task.description;
+    
+                // Priority Cell with conditional color styling
+                const priorityCell = row.insertCell(3);
+                const priorityText = task.priority;
+                const priorityElement = document.createElement('span');
+                priorityElement.textContent = priorityText;
+    
+                // Apply color based on priority
+                if (priorityText === "Low") {
+                    priorityElement.style.color = "green";  // Green for low priority
+                } else if (priorityText === "Medium") {
+                    priorityElement.style.color = "orange";  // Orange for medium priority
+                } else if (priorityText === "High") {
+                    priorityElement.style.color = "red";  // Red for high priority
+                }
+    
+                priorityCell.appendChild(priorityElement);
+    
+                // Insert other task details into the table
+                row.insertCell(4).textContent = task.deadline;
+                row.insertCell(5).textContent = task.assignee;
+                row.insertCell(6).textContent = task.status;
+    
+                // Action Buttons (with icons)
+                const actionsCell = row.insertCell(7);
+    
+                // Create the Update button with an icon
+                const updateBtn = document.createElement('button');
+                updateBtn.innerHTML = '<i class="fas fa-edit"></i> Update';  // Font Awesome Edit Icon
+                updateBtn.classList.add('updateBtn');
+                actionsCell.appendChild(updateBtn);
+    
+                // Create the Delete button with an icon
+                const deleteBtn = document.createElement('button');
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';  // Font Awesome Trash Icon
+                deleteBtn.classList.add('deleteBtn');
+                actionsCell.appendChild(deleteBtn);
+    
+                // Add event listener for Update button
+                updateBtn.addEventListener('click', function() {
+                    const userConfirmed = confirm('Are you sure you want to update this task?');
+                    if (userConfirmed) {
+                        editTask(index);  // Proceed with editing the task if confirmed
+                    }
+                });
+    
+                // Add event listener for Delete button
+                deleteBtn.addEventListener('click', function() {
+                    deleteTask(index);  // Call the delete function to remove the task
+                });
+    
+                // Add drag-and-drop functionality
+                row.setAttribute('draggable', true); // Make row draggable
+                row.addEventListener('dragstart', (e) => handleDragStart(e, index));
+                row.addEventListener('dragover', (e) => handleDragOver(e));
+                row.addEventListener('drop', (e) => handleDrop(e, index));
+            });
+        }
+    
+        let draggedRowIndex = null; // Store the index of the dragged row
+    
+        // Handle the start of dragging
+        function handleDragStart(e, index) {
+            draggedRowIndex = index; // Store the index of the task being dragged
+            e.dataTransfer.setData('text', e.target.id); // Store the ID of the dragged task
+        }
+    
+        // Allow the target area (task row) to accept the dragged item
+        function handleDragOver(e) {
+            e.preventDefault(); // Required to allow drop
+        }
+    
+        // Handle the drop of the dragged task
+        function handleDrop(e, index) {
+            e.preventDefault();
+            const draggedTask = tasks[draggedRowIndex]; // The task being dragged
+            tasks.splice(draggedRowIndex, 1); // Remove the task from the original position
+            tasks.splice(index, 0, draggedTask); // Insert the task into the new position
+    
+            renderTaskTable(); // Re-render the task table to reflect the new order
+        }
+    
+        // Edit task logic
+        function editTask(index) {
+            const task = tasks[index];
+            document.getElementById('updateTitle').value = task.title;
+            document.getElementById('updateDescription').value = task.description;
+            document.getElementById('updateDeadline').value = task.deadline;
+            document.getElementById('updateTeam').value = task.team;
+            document.getElementById('updatePriority').value = task.priority;
+            document.getElementById('updateAssignee').value = task.assignee;
+            editingIndex = index;
+            document.getElementById('updatePopup').style.display = 'block';
+    
+            // Update word count for description
+            updateWordCount('updateDescription', 'updateWordCount');
+        }
+    
+        // Close popup
+        document.getElementById('closePopupBtn').addEventListener('click', function() {
+            document.getElementById('updatePopup').style.display = 'none';
+        });
+    
+        // Add Task Name input validation for update form
+        document.getElementById('updateTitle').addEventListener('input', function() {
+            validateTaskName('updateTitle', 'updateTaskNameError');
+        });
+    
+        // Word count functionality for update description
+        document.getElementById('updateDescription').addEventListener('input', function() {
+            updateWordCount('updateDescription', 'updateWordCount');
+        });
+    
+        // Save updated task
+        document.getElementById('updateForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+    
+            // Validate task name
+            validateTaskName('updateTitle', 'updateTaskNameError');
+            if (document.getElementById('updateTaskNameError').style.display === 'block') {
+                return; // Don't submit if there's an error
+            }
+    
+            const updatedTask = {
+                title: document.getElementById('updateTitle').value,
+                description: document.getElementById('updateDescription').value,
+                deadline: document.getElementById('updateDeadline').value,
+                team: document.getElementById('updateTeam').value,
+                priority: document.getElementById('updatePriority').value,
+                assignee: document.getElementById('updateAssignee').value,
+                status: 'Pending'
+            };
+    
+            tasks[editingIndex] = updatedTask;
+            showSuccessMessage();
+            document.getElementById('updatePopup').style.display = 'none';
+            renderTaskTable();
+        });
+    
+        // Delete task
+        function deleteTask(index) {
+            const userConfirmed = confirm('Are you sure you want to delete this task?');
+            if (userConfirmed) {
+                tasks.splice(index, 1);
+                showSuccessMessage();
+                renderTaskTable();
+            }
+        }
+    
+        // Show success message after CRUD operations
+        function showSuccessMessage() {
+            alert('Operation successful!');
+        }
     </script>
+    
 </body>
 </html>
