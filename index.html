@@ -51,6 +51,23 @@
         .sidebar a:hover {
             background-color: #575757;
         }
+
+        @keyframes blink {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.blinking-btn {
+    animation: blink 1s infinite;  /* Infinite blinking with 1s duration */
+}
+
         .container {
             margin-left: 220px;
             padding: 20px;
@@ -104,6 +121,9 @@
             background-color: #ddd;
             color: black;
         }
+        .blinking-btn:hover {
+    background-color: green; /* Darker blue when hovered */
+}
         .updateBtn:hover, .deleteBtn:hover, .resetBtn:hover {
             opacity: 0.8;
         }
@@ -129,6 +149,9 @@
         .success-message.show {
             display: block;
         }
+        .blinking-btn {
+    animation: blink 5s infinite;  /* Slower blinking with a duration of 5 seconds */
+}
         /* Search Styles */
         #searchFilterBar {
             margin-bottom: 20px;
@@ -228,7 +251,10 @@
                         <option value="Member2">Member2</option>
                     </select>
 
-                    <button type="submit"><i class="fas fa-plus"></i> Add Task</button>
+                    <button id="addTaskBtn" class="blinking-btn" type="submit">
+                        <i class="fas fa-plus"></i> Add Task
+                    </button>
+                    
                     <button type="button" id="resetBtn" class="resetBtn"><i class="fas fa-undo"></i> Reset</button>
                 </div>
             </form>
