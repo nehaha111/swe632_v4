@@ -187,6 +187,8 @@
     border-radius: 4px;
 }
 
+
+
 #updateConfirmPopup button:hover {
     opacity: 0.8;
 }
@@ -230,6 +232,7 @@
                     <h3>Description of Task:</h3>
                     <textarea id="description" required></textarea>
                     <p id="wordCount" style="margin: 0;"></p>
+                    <span id="descriptionError" style="display: none; color: red;">No numbers or special characters allowed! Please try again</span>
 
                     <h3>Deadline:</h3>
                     <input type="date" id="deadline" required>
@@ -336,6 +339,7 @@
                 <h3 for="updateDescription">Description of Task:</h3>
 <textarea id="updateDescription" required></textarea>
 <p id="updateWordCount" style="margin: 0; font-size: 14px; color: #555;">Word count: 0</p>
+<span id="descriptionError" style="display: none; color: red;">No numbers or special characters allowed! Please try again</span>
                 <h3>Deadline:</h3>
                 <input type="date" id="updateDeadline" required>
 
@@ -414,6 +418,35 @@
         document.getElementById('description').addEventListener('input', function() {
             updateWordCount('description', 'wordCount');
         });
+
+        // Function to validate the description input
+function validateDescription(inputId, errorId) {
+    const descriptionInput = document.getElementById(inputId);
+    const descriptionError = document.getElementById(errorId);
+    const originalValue = descriptionInput.value;
+    const cleanedValue = originalValue.replace(/[^a-zA-Z\s]/g, ''); // Adjust regex as needed
+
+    if (originalValue !== cleanedValue) {
+        descriptionInput.value = cleanedValue;
+    }
+
+    if (/[^a-zA-Z\s]/.test(originalValue)) {
+        descriptionError.style.display = 'block';
+    } else {
+        descriptionError.style.display = 'none';
+    }
+}
+
+// Add description input validation for "Add Task" form
+document.getElementById('description').addEventListener('input', function() {
+    validateDescription('description', 'descriptionError');
+});
+
+// Add description input validation for "Update Task" form
+document.getElementById('updateDescription').addEventListener('input', function() {
+    validateDescription('updateDescription', 'updateDescriptionError');
+});
+
 
         // Add task form submission logic
         document.getElementById('taskForm').addEventListener('submit', function(event) {
