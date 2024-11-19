@@ -619,63 +619,80 @@ function renderTaskTable() {
                 successMessage.classList.remove('show');
             }, 2000);
         }
-
-        
-
-        // Search functionality
         document.getElementById('searchInput').addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            const filteredTasks = tasks.filter(task => {
-                return task.title.toLowerCase().includes(searchTerm) ||
-                    task.team.toLowerCase().includes(searchTerm) ||
-                    task.description.toLowerCase().includes(searchTerm) ||
-                    task.priority.toLowerCase().includes(searchTerm) ||
-                    task.deadline.toLowerCase().includes(searchTerm) ||
-                    task.assignee.toLowerCase().includes(searchTerm) ||
-                    task.status.toLowerCase().includes(searchTerm);
+    const searchTerm = this.value.toLowerCase();
+    const filteredTasks = tasks.filter(task => {
+        return task.title.toLowerCase().includes(searchTerm) ||
+            task.team.toLowerCase().includes(searchTerm) ||
+            task.description.toLowerCase().includes(searchTerm) ||
+            task.priority.toLowerCase().includes(searchTerm) ||
+            task.deadline.toLowerCase().includes(searchTerm) ||
+            task.assignee.toLowerCase().includes(searchTerm) ||
+            task.status.toLowerCase().includes(searchTerm);
+    });
+
+    const taskTable = document.getElementById('taskTable').getElementsByTagName('tbody')[0];
+    taskTable.innerHTML = ''; // Clear the table
+
+    if (filteredTasks.length === 0) {
+        document.getElementById('noResultsMessage').style.display = 'block';
+    } else {
+        document.getElementById('noResultsMessage').style.display = 'none';
+        filteredTasks.forEach((task, index) => {
+            const row = taskTable.insertRow();
+            row.insertCell(0).textContent = task.title;
+            row.insertCell(1).textContent = task.team;
+            row.insertCell(2).textContent = task.description;
+
+            // Priority Cell with color styling
+            const priorityCell = row.insertCell(3);
+            const priorityElement = document.createElement('span');
+            priorityElement.textContent = task.priority;
+            if (task.priority === "Low") {
+                priorityElement.style.color = "green";
+            } else if (task.priority === "Medium") {
+                priorityElement.style.color = "orange";
+            } else if (task.priority === "High") {
+                priorityElement.style.color = "red";
+            }
+            priorityCell.appendChild(priorityElement);
+
+            row.insertCell(4).textContent = task.deadline;
+            row.insertCell(5).textContent = task.assignee;
+            row.insertCell(6).textContent = task.status;
+
+            // Action Buttons with icons
+            const actionsCell = row.insertCell(7);
+
+            // Update button with icon
+            const updateBtn = document.createElement('button');
+            updateBtn.innerHTML = '<i class="fas fa-edit"></i> Update';
+            updateBtn.classList.add('updateBtn');
+            actionsCell.appendChild(updateBtn);
+
+            // Delete button with icon
+            const deleteBtn = document.createElement('button');
+            deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
+            deleteBtn.classList.add('deleteBtn');
+            actionsCell.appendChild(deleteBtn);
+
+            // Event listeners for Update and Delete buttons
+            updateBtn.addEventListener('click', function() {
+                editTask(index);
+            });
+            deleteBtn.addEventListener('click', function() {
+                deleteTask(index);
             });
 
-            const taskTable = document.getElementById('taskTable').getElementsByTagName('tbody')[0];
-            taskTable.innerHTML = '';
-
-            if (filteredTasks.length === 0) {
-                document.getElementById('noResultsMessage').style.display = 'block';
-            } else {
-                document.getElementById('noResultsMessage').style.display = 'none';
-                filteredTasks.forEach((task, index) => {
-                    const row = taskTable.insertRow();
-                    row.insertCell(0).textContent = task.title;
-                    row.insertCell(1).textContent = task.team;
-                    row.insertCell(2).textContent = task.description;
-                    row.insertCell(3).textContent = task.priority;
-                    row.insertCell(4).textContent = task.deadline;
-                    row.insertCell(5).textContent = task.assignee;
-                    row.insertCell(6).textContent = task.status;
-
-                    // Action Buttons
-                    const actionsCell = row.insertCell(7);
-                    const updateBtn = document.createElement('button');
-                    updateBtn.textContent = 'Update';
-                    updateBtn.classList.add('updateBtn');
-                    actionsCell.appendChild(updateBtn);
-
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.textContent = 'Delete';
-                    deleteBtn.classList.add('deleteBtn');
-                    actionsCell.appendChild(deleteBtn);
-
-                    // Update Button Click Handler
-                    updateBtn.addEventListener('click', function() {
-                        editTask(index);
-                    });
-
-                    // Delete Button Click Handler
-                    deleteBtn.addEventListener('click', function() {
-                        deleteTask(index);
-                    });
-                });
-            }
+            // Add drag-and-drop functionality
+            row.setAttribute('draggable', true);
+            row.addEventListener('dragstart', (e) => handleDragStart(e, index));
+            row.addEventListener('dragover', (e) => handleDragOver(e));
+            row.addEventListener('drop', (e) => handleDrop(e, index));
         });
+    }
+});
+
         // Show Add Task Tab initially
         showTab('addTaskTab');
     </script>
